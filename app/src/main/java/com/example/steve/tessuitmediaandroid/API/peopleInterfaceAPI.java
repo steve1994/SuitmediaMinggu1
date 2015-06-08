@@ -6,6 +6,7 @@ import com.example.steve.tessuitmediaandroid.model.PersonGuestModel;
 import java.util.List;
 
 import retrofit.Callback;
+import retrofit.client.Response;
 import retrofit.http.GET;
 
 /**
@@ -15,5 +16,5 @@ import retrofit.http.GET;
 public interface peopleInterfaceAPI {
 
     @GET("/people")
-    void getPeople(Callback<List<PersonGuestModel>> callback);
+    void getPeople(Callback<Response> callback);
 }

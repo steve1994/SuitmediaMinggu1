@@ -24,10 +24,9 @@ dependencies {
     apt "org.androidannotations:androidannotations:$AAVersion"
     compile "org.androidannotations:androidannotations-api:$AAVersion"
     compile 'com.android.support:appcompat-v7:21.0.3'
-    compile files('libs/retrofit-1.9.0.jar')
-    compile files('libs/okhttp-2.4.0.jar')
-    compile files('libs/okhttp-urlconnection-2.4.0.jar')
-    compile files('libs/gson-2.3.1.jar')
+    compile 'com.squareup.retrofit:retrofit:1.9.0'
+    compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
+    compile 'com.squareup.okhttp:okhttp:2.0.0'
 }
 
 apt {

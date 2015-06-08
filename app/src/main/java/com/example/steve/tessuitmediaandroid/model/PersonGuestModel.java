@@ -1,6 +1,7 @@
 package com.example.steve.tessuitmediaandroid.model;
 
 
+
 public class PersonGuestModel {
 
     private Integer id;
@@ -8,6 +9,7 @@ public class PersonGuestModel {
     private String name;
 
     private String birthdate;
+
 
     /**
      *
