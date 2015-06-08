@@ -25,6 +25,6 @@
         android:id="@+id/listEvent"
         android:layout_below="@+id/lineBottomToolbar"
         android:background="@drawable/bg_list"
-        android:padding="10dp"/>
+        android:padding="0dp"/>
 
 </RelativeLayout>
