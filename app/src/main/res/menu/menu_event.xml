@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.steve.tessuitmediaandroid.EventActivity">
+
+    <item android:id="@+id/searchButton"
+        android:title="@string/title_search_toolbar"
+        android:icon="@drawable/abc_ic_search_api_mtrl_alpha"
+        app:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/newArticleButton1"
+        android:title="@string/title_event_toolbar"
+        android:icon="@drawable/btn_new_media_article_normal"
+        app:showAsAction="ifRoom"/>
+
+</menu>

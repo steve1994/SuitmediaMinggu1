@@ -1,0 +1,57 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EnterNameActivity"
+    android:background="@drawable/bg_validation"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:gravity="center">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Selamat Datang !"
+        android:id="@+id/selamatDatang"
+        android:textColor="#ffffffff"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="40dp"/>
+
+    <TextView
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Sertakan Gambar Profil Anda untuk Melengkapi Profil"
+        android:id="@+id/petunjukGambarProfil"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:textColor="#ffffffff"
+        android:layout_marginBottom="20dp"/>
+
+    <ImageButton
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:id="@+id/addProfilePicture"
+        android:background="@drawable/btn_add_photo"
+        android:layout_marginBottom="30dp"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="Enter Your Name"
+        android:id="@+id/nameInput"
+        android:background="@drawable/text_field"
+        android:textColor="#ffffffff"
+        android:layout_marginBottom="40dp"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:text="SELESAI"
+        android:id="@+id/signUpButton"
+        android:background="@drawable/btn_signup_normal"/>
+
+</LinearLayout>

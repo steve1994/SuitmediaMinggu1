@@ -1,0 +1,30 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.steve.tessuitmediaandroid.EventActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:layout_height="?android:attr/actionBarSize"
+        android:layout_width="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:id="@+id/eventToolbar"
+        style="@style/AppTheme.Toolbar"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:id="@+id/lineBottomToolbar"
+        android:layout_below="@+id/toolBarEvent"
+        android:background="@drawable/line_actionbar_article_detail"/>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/listEvent"
+        android:layout_below="@+id/lineBottomToolbar"
+        android:background="@drawable/bg_list"
+        android:padding="10dp"/>
+
+</RelativeLayout>
