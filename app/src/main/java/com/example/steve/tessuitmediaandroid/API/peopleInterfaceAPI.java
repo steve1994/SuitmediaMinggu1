@@ -16,5 +16,5 @@ import retrofit.http.GET;
 public interface peopleInterfaceAPI {
 
     @GET("/people")
-    void getPeople(Callback<Response> callback);
+    void getPeople(Callback<List<PersonGuestModel>> callback);
 }

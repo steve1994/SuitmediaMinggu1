@@ -2,8 +2,12 @@ package com.example.steve.tessuitmediaandroid.model;
 
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class PersonGuestModel extends RealmObject {
+
+    @PrimaryKey
+    private String id;
 
     private String name;
 
@@ -17,6 +21,25 @@ public class PersonGuestModel extends RealmObject {
         this.name = name;
         this.birthdate = birthdate;
     }
+
+    /**
+     *
+     * @return
+     * The id
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     *
+     * @param id
+     * The name
+     */
+    public void setId (String id) {
+        this.id = id;
+    }
+
     /**
      *
      * @return

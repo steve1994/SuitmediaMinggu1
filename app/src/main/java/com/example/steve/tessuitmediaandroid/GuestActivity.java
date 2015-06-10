@@ -73,7 +73,6 @@ public class GuestActivity extends Activity {
     private String birthdayPeopleSelected = "31-12-1999";
     private RestAdapter restAdapter;
     private static final String URL = "http://dry-sierra-6832.herokuapp.com/api";
-    private String result;
 
     // PRIMITIF BOOLEAN
     public boolean isOnline() {
@@ -86,63 +85,15 @@ public class GuestActivity extends Activity {
     @AfterViews
     void setGridView() {
         // Hapus object realm terakhir
-        Realm.deleteRealmFile(this);
+       // Realm.deleteRealmFile(this);
         // Buat instance object realm baru
         realm = Realm.getInstance(this);
         // Create object adapter
         adapter = new rowGuestList(this, namaBirthdateGuest);
+        // Load API dari url
+        loadPeople();
         //fetchPeopleFromAPI("http://dry-sierra-6832.herokuapp.com/api");
     }
-
-    /*@Background
-    void fetchPeopleFromAPI (String urlEndpoint) {
-        // Lakukan pemanggilan REST API melalui restAdapter
-        restAdapter = new RestAdapter.Builder().setEndpoint(urlEndpoint).build();
-        peopleInterfaceAPI peopleAPI = restAdapter.create(peopleInterfaceAPI.class);
-        // Handle response API
-        peopleAPI.getPeople(new Callback<Response>() {
-            @Override
-            public void success(Response response, Response response2) {
-                // Dapatkan string json array dari http response
-                BufferedReader reader = null;
-                StringBuilder sb = new StringBuilder();
-                try {
-                    reader = new BufferedReader(new InputStreamReader(response.getBody().in()));
-                    String lineBuffer;
-                    while ((lineBuffer = reader.readLine()) != null) {
-                        sb.append(lineBuffer);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                String result = sb.toString();
-
-                // Konversi string json array ke bentuk array of parcelable object (POJO Model)
-                Gson gson = new Gson();
-                PersonGuestModel[] resultJSONArray = gson.fromJson(result, PersonGuestModel[].class);
-
-                // Tambahkan masing-masing array of parcelable object (POJO Model) ke adapter
-                for (PersonGuestModel people : resultJSONArray) {
-                    adapter.add (new dataStructureGuest (people.getName(), people.getBirthdate()));
-                }
-            }
-
-            @Override
-            public void failure(RetrofitError retrofitError) {
-                Log.d("SUITMEDIA", "gagal " + retrofitError.getMessage());
-            }
-        });
-
-        // Kirim hasil parsing dalam bentuk model ke UIThread
-        setGridViewAdapter();
-    }
-
-    @UiThread
-    void setGridViewAdapter() {
-        // Bentuk kelas adapter beserta memasangnya ke gridview list
-        adapter = new rowGuestList(this, namaBirthdateGuest);
-        listGuest.setAdapter(adapter);
-    }*/
 
     @ItemClick(R.id.listGuest)
     void guestListItemClicked (dataStructureGuest guest) {
@@ -151,81 +102,16 @@ public class GuestActivity extends Activity {
         finish();
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        // Variabel untuk menampung list object Realm : PersonGuestModel
-        List<PersonGuestModel> people = null;
-
-        // Cek apakah device online atau tidak
-        if (isOnline()) {
-            // Load dari api menggunakan retrofit mengembalikan list people berbentuk realm object
-            people = loadPeople();
-
-            // Fetch row model Realm : PersonGuestModel.
-            List<PersonGuestModel> result = realm.where(PersonGuestModel.class).findAll();
-
-            // Cek apakah hasil eksekusi query Realm di atas kosong
-            if (result.size() == 0) {
-                // Set value list people ke Realm model
-                for (PersonGuestModel person : people) {
-                    realm.beginTransaction();
-                    PersonGuestModel ppl = realm.createObject(PersonGuestModel.class);
-                    ppl.setName(person.getName());
-                    ppl.setBirthdate(person.getBirthdate());
-                    realm.commitTransaction();
-                }
-            } else {
-                // Update data dari people list yang sudah diload sebelumnya
-                realm.beginTransaction();
-                realm.copyToRealmOrUpdate(people);
-                realm.commitTransaction();
-            }
-        }
-
-        // Fetch row model Realm : PersonGuestModel. Mengantisipasi jika ada update
-        List<PersonGuestModel> resultIfUpdate = realm.where(PersonGuestModel.class).findAll();
-
-        // Baca data dari hasil query Result realmObject, masukkan ke adapter
-        for (PersonGuestModel person : resultIfUpdate) {
+    private void loadPeople() {
+        // Load data gridview dari object realm lokal sebelum fetch API dari url
+        List<PersonGuestModel> realmLocalPeople = realm.where(PersonGuestModel.class).findAll();
+        // Set data lokal pada adapter gridview
+        for (PersonGuestModel person : realmLocalPeople) {
+            Log.d("realMadrid", person.toString());
             adapter.add(new dataStructureGuest(person.getName(),person.getBirthdate()));
         }
-        // Pasang adapter pada gridview
         listGuest.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
         listGuest.invalidate();
-    }
-
-    private List<PersonGuestModel> loadPeople() {
-        // Lakukan pemanggilan REST API melalui restAdapter
-        restAdapter = new RestAdapter.Builder().setEndpoint(URL).build();
-        peopleInterfaceAPI peopleAPI = restAdapter.create(peopleInterfaceAPI.class);
-
-        // Handle response API
-        peopleAPI.getPeople(new Callback<Response>() {
-            @Override
-            public void success(Response response, Response response2) {
-                // Dapatkan string json array dari http response
-                BufferedReader reader = null;
-                StringBuilder sb = new StringBuilder();
-                try {
-                    reader = new BufferedReader(new InputStreamReader(response.getBody().in()));
-                    String lineBuffer;
-                    while ((lineBuffer = reader.readLine()) != null) {
-                        sb.append(lineBuffer);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                result = sb.toString(); // string http response json api
-            }
-
-            @Override
-            public void failure(RetrofitError retrofitError) {
-                Log.d("SUITMEDIA", "gagal " + retrofitError.getMessage());
-            }
-        });
 
         // Buat exclusion strategies kelas gson untuk memindahkan hasil parsing
         // http response ke object realm yang akan digunakan nanti
@@ -241,19 +127,33 @@ public class GuestActivity extends Activity {
                         return false;
                     }
                 }).create();
+        // Lakukan pemanggilan REST API melalui restAdapter untuk mengupdate data people lokal Realm
+        restAdapter = new RestAdapter.Builder().setEndpoint(URL).setConverter(new GsonConverter(gson)).build();
+        peopleInterfaceAPI peopleAPI = restAdapter.create(peopleInterfaceAPI.class);
 
-        // Masukkan ke array of list of object Realm PersonGuestModel
-        List<PersonGuestModel> people = gson.fromJson(result, new TypeToken<List<PersonGuestModel>>() {}.getType());
+        peopleAPI.getPeople(new Callback<List<PersonGuestModel>>() {
+            @Override
+            public void success(List<PersonGuestModel> personGuestModels, Response response) {
+                // Update data lokal menggunakan realmCopyToOrUpdate
+                realm.beginTransaction();
+                List<PersonGuestModel> realmOnlinePeople = realm.copyToRealmOrUpdate(personGuestModels);
+                realm.commitTransaction();
 
-        // Buka transaksi realm object, kopi list people hasil parsing gson ke object yang dimanage realm
-        realm.beginTransaction();
-        Collection<PersonGuestModel> realmPeople = realm.copyToRealm(people);
-        realm.commitTransaction();
+                // Hapus adapter lama dari data people Realm Lokal
+                adapter.clear();
+                // Baca data dari hasil query Result realmObject, masukkan ke adapter
+                for (PersonGuestModel person : realmOnlinePeople) {
+                    adapter.add(new dataStructureGuest(person.getName(),person.getBirthdate()));
+                }
+                listGuest.setAdapter(adapter);
+                listGuest.invalidate();
+            }
 
-        Log.d("realMadrid",realmPeople.toString());
+            @Override
+            public void failure(RetrofitError error) {
 
-        // kembalikan list people yang sudah berbentuk object Realm
-        return new ArrayList<>(realmPeople);
+            }
+        });
     }
 
     @Override
