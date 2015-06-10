@@ -14,6 +14,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.steve.tessuitmediaandroid.model.PersonGuestModel;
+
 import java.util.ArrayList;
 import java.util.List;
 

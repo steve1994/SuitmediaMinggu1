@@ -1,34 +1,22 @@
 package com.example.steve.tessuitmediaandroid.model;
 
 
+import io.realm.RealmObject;
 
-public class PersonGuestModel {
-
-    private Integer id;
+public class PersonGuestModel extends RealmObject {
 
     private String name;
 
     private String birthdate;
 
+    public PersonGuestModel() {
 
-    /**
-     *
-     * @return
-     * The id
-     */
-    public Integer getId() {
-        return id;
     }
 
-    /**
-     *
-     * @param id
-     * The id
-     */
-    public void setId(Integer id) {
-        this.id = id;
+    public PersonGuestModel (String name, String birthdate) {
+        this.name = name;
+        this.birthdate = birthdate;
     }
-
     /**
      *
      * @return
