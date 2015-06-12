@@ -11,5 +11,6 @@
     <string name="title_activity_row_guest_list">rowGuestList</string>
     <string name="title_event_toolbar">Message From Codi</string>
     <string name="title_search_toolbar">search</string>
+    <string name="title_activity_fragment_container">FragmentContainer</string>
 
 </resources>

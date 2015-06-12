@@ -9,8 +9,12 @@ import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Contacts;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.ListFragment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
@@ -28,6 +32,7 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ItemClick;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
@@ -62,9 +67,9 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
 
-@EActivity(R.layout.activity_guest)
+@EFragment (R.layout.activity_guest)
 
-public class GuestActivity extends Activity {
+public class GuestActivity extends Fragment {
     private rowGuestList adapter;
     private Realm realm;
     @ViewById GridView listGuest;
@@ -72,34 +77,60 @@ public class GuestActivity extends Activity {
     private String namePeopleSelected = "anonim";
     private String birthdayPeopleSelected = "31-12-1999";
     private RestAdapter restAdapter;
+    private Activity activity;
     private static final String URL = "http://dry-sierra-6832.herokuapp.com/api";
 
-    // PRIMITIF BOOLEAN
-    public boolean isOnline() {
-        // Cek apakah device terhubung ke jaringan/internet atau tidak
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        return (networkInfo != null && networkInfo.isConnected());
+    public interface onGuestItemListClickListener {
+        public void onGuestItemListClick(dataStructureGuest guest);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        this.activity = activity;
     }
 
     @AfterViews
-    void setGridView() {
-        // Hapus object realm terakhir
-       // Realm.deleteRealmFile(this);
+    public void setGridView() {
         // Buat instance object realm baru
-        realm = Realm.getInstance(this);
+        realm = Realm.getInstance(getActivity());
         // Create object adapter
-        adapter = new rowGuestList(this, namaBirthdateGuest);
+        adapter = new rowGuestList(getActivity(), namaBirthdateGuest);
+        // Load API guest dari url, langsung pasang di adapter
+        loadPeople();
+    }
+
+   /* @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Buat instance object realm baru
+        realm = Realm.getInstance(getActivity());
+        // Create object adapter
+        adapter = new rowGuestList(getActivity(), namaBirthdateGuest);
+        // Load API guest dari url, langsung pasang di adapter
+        loadPeople();
+
+        return super.onCreateView(inflater, container, savedInstanceState);
+    } */
+
+   /* @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        // EVENT GRIDVIEW
+        // Buat instance object realm baru
+        realm = Realm.getInstance(getActivity());
         // Load API dari url
         loadPeople();
-        //fetchPeopleFromAPI("http://dry-sierra-6832.herokuapp.com/api");
-    }
+    } */
 
     @ItemClick(R.id.listGuest)
     void guestListItemClicked (dataStructureGuest guest) {
-        namePeopleSelected = guest.getNama();
-        birthdayPeopleSelected = guest.getBirthday();
-        finish();
+        try {
+            ((onGuestItemListClickListener) activity).onGuestItemListClick(guest);
+        } catch (ClassCastException activityClass) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement onGuestItemListClickListener");
+        }
+        onDestroy();
     }
 
     private void loadPeople() {
@@ -108,7 +139,7 @@ public class GuestActivity extends Activity {
         // Set data lokal pada adapter gridview
         for (PersonGuestModel person : realmLocalPeople) {
             Log.d("realMadrid", person.toString());
-            adapter.add(new dataStructureGuest(person.getName(),person.getBirthdate()));
+            namaBirthdateGuest.add(new dataStructureGuest(person.getName(),person.getBirthdate()));
         }
         listGuest.setAdapter(adapter);
         listGuest.invalidate();
@@ -143,7 +174,7 @@ public class GuestActivity extends Activity {
                 adapter.clear();
                 // Baca data dari hasil query Result realmObject, masukkan ke adapter
                 for (PersonGuestModel person : realmOnlinePeople) {
-                    adapter.add(new dataStructureGuest(person.getName(),person.getBirthdate()));
+                    namaBirthdateGuest.add(new dataStructureGuest(person.getName(),person.getBirthdate()));
                 }
                 listGuest.setAdapter(adapter);
                 listGuest.invalidate();
@@ -159,9 +190,10 @@ public class GuestActivity extends Activity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        realm.close(); // tutup instans realm ketika activity closed
+        adapter.clear();
+       // realm.close(); // tutup instans realm ketika activity closed
     }
-
+/*
     @Override
     public void finish() {
         Intent intent = new Intent();
@@ -171,4 +203,5 @@ public class GuestActivity extends Activity {
         adapter.clear();
         super.finish();
     }
+    */
 }

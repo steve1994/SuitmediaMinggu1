@@ -2,42 +2,140 @@ package com.example.steve.tessuitmediaandroid;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.steve.tessuitmediaandroid.Fragment.FragmentContainer;
+
 import org.androidannotations.annotations.AfterExtras;
+import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.Extra;
+import org.androidannotations.annotations.FragmentArg;
 import org.androidannotations.annotations.OnActivityResult;
 import org.androidannotations.annotations.Trace;
 import org.androidannotations.annotations.ViewById;
 
-@EActivity(R.layout.activity_main_menu)
-
-public class MainMenuActivity extends Activity {
+@EFragment(R.layout.activity_main_menu)
+public class MainMenuActivity extends Fragment {
     @ViewById Button pilihEventButton;
     @ViewById Button pilihGuestButton;
     @ViewById TextView nameView;
-    @Extra String nama;
-
+    @FragmentArg("enterNama") String nama;
+    @FragmentArg("namaEvent") String namaEvent;
+    @FragmentArg("namaGuest") String namaGuest;
+    @FragmentArg("birthdateGuest") String birthdateGuest;
+    private Activity activity; // activity fragment container
     private static final int REQUEST_CODE_EVENT = 1;
     private static final int REQUEST_CODE_GUEST = 2;
 
-    @AfterViews
-    public void updateNameText() {
-        // Set textview nama dari intent extra
-        nameView.setText(nama);
+    // INTERFACE UNTUK BERKOMUNIKASI DENGAN FRAGMENT CONTAINER
+    public interface onEventButtonClickListener {
+        public void onEventButtonClick();
+    }
+    public interface onGuestButtonClickListener {
+        public void onGuestButtonClick();
     }
 
-    @AfterExtras
+    @AfterViews
+    public void setNamaAndButton() {
+        // Setting text pada TextView 'nama' dan Button 'pilih event' dan 'pilih guest'
+        if (nama != null) {
+            nameView.setText(nama);
+            showNameCharacteristics();
+        }
+        if (namaEvent == null) {
+            pilihEventButton.setText("pilih event");
+        } else {
+            pilihEventButton.setText(namaEvent);
+        }
+        if ((namaGuest == null) && (birthdateGuest == null)) {
+            pilihGuestButton.setText("pilih guest");
+        } else {
+            pilihGuestButton.setText(namaGuest);
+
+            // Parsing birthday guest (dapat bulan dan tanggal/hari)
+            Log.d("barcelona", birthdateGuest);
+            String[] parseBirthdayGuest = birthdateGuest.split("[-]");
+            int dayBirthdayGuest = Integer.parseInt(parseBirthdayGuest[2]);         // Dapat hari dari birthday guest
+            int monthBirthdayGuest = Integer.parseInt(parseBirthdayGuest[1]);       // Dapat bulan dari birthday guest
+
+            // Klasifikasi kategori dari elemen hari Birthday Guest
+            String kategoriDay;
+            if ((dayBirthdayGuest % 2 == 0) && (dayBirthdayGuest % 3 == 0)) {
+                kategoriDay = "iOS";
+            } else {
+                if (dayBirthdayGuest % 2 == 0) {
+                    kategoriDay = "blackberry";
+                } else if (dayBirthdayGuest % 3 == 0) {
+                    kategoriDay = "android";
+                } else {
+                    kategoriDay = "feature phone";
+                }
+            }
+            // Klasifikasi kategori dari elemen bulan Birthday Guest
+            String kategoriMonth;
+            if (isMonthPrime(monthBirthdayGuest)) {
+                kategoriMonth = "prima";
+            } else {
+                kategoriMonth = "bukan prima";
+            }
+
+            // Output hasil klasifikasi elemen hari dan bulan Birthday Guest
+            String toastMessage = kategoriDay + " dan " + kategoriMonth;
+            Toast.makeText(getActivity(), toastMessage, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        this.activity = activity;
+    }
+
+    @Click
+    public void pilihEventButton() {
+        try {
+            ((onEventButtonClickListener) activity).onEventButtonClick();
+        } catch (ClassCastException activityClass) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement onEventButtonClickListener");
+        }
+    }
+
+    @Click
+    public void pilihGuestButton() {
+        try {
+            ((onGuestButtonClickListener) activity).onGuestButtonClick();
+        } catch (ClassCastException activityClass) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement onGuestButtonClickListener");
+        }
+    }
+
+    public void showNameCharacteristics() {
+        // Cek nama apakah palindrom atau bukan
+        if (isNamaPalindrom(nama)) {
+            Toast.makeText(getActivity(),"Nama Anda berbentuk palindrom",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getActivity(),"Nama Anda bukan berbentuk palindrom",Toast.LENGTH_SHORT).show();
+        }
+    }
+
+   /* @AfterExtras
     public void showNameCharacteristics() {
         // Cek nama apakah palindrom atau bukan
         if (isNamaPalindrom(nama)) {
@@ -104,7 +202,7 @@ public class MainMenuActivity extends Activity {
             String toastMessage = kategoriDay + " dan " + kategoriMonth;
             Toast.makeText(getBaseContext(), toastMessage, Toast.LENGTH_LONG).show();
         }
-    }
+    } */
 
     // PRIMITIF BOOLEAN
 
